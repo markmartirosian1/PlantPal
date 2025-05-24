@@ -1,7 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function HomeTab() {
+  const router = useRouter();
+
+  const handleBeginOnboarding = () => {
+    router.push('/plant-setup');
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -11,13 +18,7 @@ export default function HomeTab() {
 
       {/* Plant Illustration */}
       <View style={styles.plantContainer}>
-        <View style={styles.plant}>
-          {/* Leaves */}
-          <View style={styles.leafLeft}></View>
-          <View style={styles.leafRight}></View>
-          {/* Pot */}
-          <View style={styles.pot}></View>
-        </View>
+        <Text style={styles.plantIcon}>🪴</Text>
       </View>
 
       {/* Subtitle */}
@@ -55,7 +56,10 @@ export default function HomeTab() {
 
       {/* Begin Onboarding Button */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.onboardingButton}>
+        <TouchableOpacity 
+          style={styles.onboardingButton}
+          onPress={handleBeginOnboarding}
+        >
           <Text style={styles.buttonText}>Begin Onboarding</Text>
           <Text style={styles.buttonArrow}>→</Text>
         </TouchableOpacity>
@@ -86,40 +90,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plant: {
-    width: 120,
-    height: 140,
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  leafLeft: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    width: 40,
-    height: 60,
-    backgroundColor: '#4CAF50',
-    borderRadius: 20,
-    transform: [{ rotate: '-15deg' }],
-  },
-  leafRight: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    width: 40,
-    height: 60,
-    backgroundColor: '#4CAF50',
-    borderRadius: 20,
-    transform: [{ rotate: '15deg' }],
-  },
-  pot: {
-    width: 80,
-    height: 60,
-    backgroundColor: '#8B4513',
-    borderRadius: 8,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+  plantIcon: {
+    fontSize: 120,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
