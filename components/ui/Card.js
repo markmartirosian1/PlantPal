@@ -1,7 +1,5 @@
-// components/ui/Card.js
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import Colors from '../../constants/Colors';
 
 const Card = ({ children, style, onPress }) => {
   const Component = onPress ? TouchableOpacity : View;
@@ -18,7 +16,7 @@ const Card = ({ children, style, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.cardBackground,
+    backgroundColor: '#FEF08A', // Direct color value
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
