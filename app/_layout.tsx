@@ -7,11 +7,26 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen 
+          name="login" 
+          options={{ 
+            headerShown: false,
+            presentation: "modal"
+          }} 
+        />
+        <Stack.Screen 
+          name="dashboard" 
+          options={{ 
+            headerShown: false,
+            // Prevent going back to login after successful login
+            gestureEnabled: false,
+          }} 
+        />
+        <Stack.Screen 
           name="plant-setup" 
           options={{ 
             title: "Add Plant",
-            headerShown: false,  // Hide header to match design
-            presentation: "modal" // Makes it slide up like a modal
+            headerShown: false,
+            presentation: "modal"
           }} 
         />
         <Stack.Screen name="+not-found" />

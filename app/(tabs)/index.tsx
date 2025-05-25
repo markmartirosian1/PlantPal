@@ -9,6 +9,10 @@ export default function HomeTab() {
     router.push('/plant-setup');
   };
 
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -54,8 +58,17 @@ export default function HomeTab() {
         </View>
       </View>
 
-      {/* Begin Onboarding Button */}
-      <View style={styles.buttonContainer}>
+      {/* Buttons Container */}
+      <View style={styles.buttonsContainer}>
+        {/* Login Button */}
+        <TouchableOpacity 
+          style={styles.loginButton}
+          onPress={handleLogin}
+        >
+          <Text style={styles.loginButtonText}>Login</Text>
+        </TouchableOpacity>
+
+        {/* Begin Onboarding Button */}
         <TouchableOpacity 
           style={styles.onboardingButton}
           onPress={handleBeginOnboarding}
@@ -105,7 +118,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    marginBottom: 60,
+    marginBottom: 40,
     paddingHorizontal: 10,
   },
   featureItem: {
@@ -138,9 +151,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 16,
   },
-  buttonContainer: {
+  buttonsContainer: {
     width: '100%',
     paddingHorizontal: 20,
+    gap: 16,
+  },
+  loginButton: {
+    backgroundColor: '#60A5FA',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   onboardingButton: {
     backgroundColor: '#A5D6A7',
