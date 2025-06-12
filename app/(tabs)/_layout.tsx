@@ -1,29 +1,45 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Text } from 'react-native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 
-export default function TabLayout() {
+export default function RootLayout() {
   return (
-    <Tabs
-      initialRouteName="index" 
-      screenOptions={{
-        tabBarActiveTintColor: '#4CAF50',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-          backgroundColor: '#FEF08A',
-        },
-        headerShown: false,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => (
-            <Text style={{ color, fontSize: 20 }}>🏠</Text>
-          ),
-        }}
-      />
-      {/* Removed the explore tab screen completely */}
-    </Tabs>
+    <>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen 
+          name="login" 
+          options={{ 
+            headerShown: false,
+            presentation: "modal"
+          }} 
+        />
+        <Stack.Screen 
+          name="dashboard" 
+          options={{ 
+            headerShown: false,
+            // Prevent going back to login after successful login
+            gestureEnabled: false,
+          }} 
+        />
+        <Stack.Screen 
+          name="plant-setup" 
+          options={{ 
+            title: "Create Account",
+            headerShown: false,
+            presentation: "modal"
+          }} 
+        />
+        <Stack.Screen 
+          name="calendar" 
+          options={{ 
+            title: "Calendar",
+            headerShown: false,
+            presentation: "card"
+          }} 
+        />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar style="auto" />
+    </>
   );
 }

@@ -5,92 +5,196 @@ import {
   StyleSheet, 
   TextInput, 
   TouchableOpacity,
-  Alert 
+  Alert,
+  Image
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import AgePicker from '../components/ui/AgePicker'; // Import the AgePicker
+import * as ImagePicker from 'expo-image-picker';
 
 export default function PlantSetupScreen() {
   const router = useRouter();
-  const [plantType, setPlantType] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [plantName, setPlantName] = useState('');
-  const [plantAge, setPlantAge] = useState('0 weeks');
+  const [plantImage, setPlantImage] = useState(null);
   const [showValidation, setShowValidation] = useState(false);
 
-  const handleDone = () => {
+  const handleCreateAccount = () => {
     // Check if required fields are filled
-    if (!plantType.trim() || !plantName.trim()) {
+    if (!username.trim() || !email.trim() || !password.trim() || !plantName.trim()) {
       setShowValidation(true);
       return;
     }
 
-    // Here you would typically save the plant data
-    // For now, we'll just show a success message and navigate back
+    // Here you would typically create the account and save the plant data
     Alert.alert(
-      'Plant Added!',
-      `${plantName} (${plantType}) has been added to your garden.`,
+      'Account Created!',
+      `Welcome ${username}! Your plant "${plantName}" has been added to your garden.`,
       [
         {
-          text: 'OK',
-          onPress: () => router.back()
+          text: 'Get Started',
+          onPress: () => router.replace('/dashboard')
         }
       ]
     );
   };
 
-  const handleAgeSelect = (age: string) => {
-    setPlantAge(age);
+  const pickImage = async () => {
+    // Request permission
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+      return;
+    }
+
+    // Launch image picker
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setPlantImage(result.assets[0].uri);
+    }
+  };
+
+  const takePhoto = async () => {
+    // Request permission
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission Required', 'Permission to access camera is required!');
+      return;
+    }
+
+    // Launch camera
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setPlantImage(result.assets[0].uri);
+    }
+  };
+
+  const showImageOptions = () => {
+    Alert.alert(
+      'Add Plant Photo',
+      'Choose how you\'d like to add a photo of your plant',
+      [
+        { text: 'Take Photo', onPress: takePhoto },
+        { text: 'Choose from Library', onPress: pickImage },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+
+  const clearValidation = (field, value) => {
+    if (showValidation && value.trim()) {
+      setShowValidation(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome to Plant Pal!</Text>
-        <Text style={styles.subtitle}>Tell us about your plant!</Text>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.backButton}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Create Your Account</Text>
+        <Text style={styles.subtitle}>Join Plant Pal and add your first plant!</Text>
       </View>
 
       {/* Form Fields */}
       <View style={styles.formContainer}>
-        {/* Plant Type */}
+        {/* Username */}
         <View style={styles.fieldContainer}>
-          <Text style={styles.fieldLabel}>Plant Type</Text>
+          <Text style={styles.fieldLabel}>Username</Text>
           <TextInput
             style={[
               styles.textInput,
-              showValidation && !plantType.trim() && styles.inputError
+              showValidation && !username.trim() && styles.inputError
             ]}
-            placeholder="Type here..."
+            placeholder="Choose a username"
             placeholderTextColor="#999"
-            value={plantType}
+            value={username}
             onChangeText={(text) => {
-              setPlantType(text);
-              if (showValidation && text.trim()) {
-                setShowValidation(false);
-              }
+              setUsername(text);
+              clearValidation('username', text);
             }}
+            autoCapitalize="none"
           />
-          {showValidation && !plantType.trim() && (
-            <Text style={styles.errorText}>Plant type is required</Text>
+          {showValidation && !username.trim() && (
+            <Text style={styles.errorText}>Username is required</Text>
+          )}
+        </View>
+
+        {/* Email */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>Email</Text>
+          <TextInput
+            style={[
+              styles.textInput,
+              showValidation && !email.trim() && styles.inputError
+            ]}
+            placeholder="Enter your email"
+            placeholderTextColor="#999"
+            value={email}
+            onChangeText={(text) => {
+              setEmail(text);
+              clearValidation('email', text);
+            }}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          {showValidation && !email.trim() && (
+            <Text style={styles.errorText}>Email is required</Text>
+          )}
+        </View>
+
+        {/* Password */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.fieldLabel}>Password</Text>
+          <TextInput
+            style={[
+              styles.textInput,
+              showValidation && !password.trim() && styles.inputError
+            ]}
+            placeholder="Create a password"
+            placeholderTextColor="#999"
+            value={password}
+            onChangeText={(text) => {
+              setPassword(text);
+              clearValidation('password', text);
+            }}
+            secureTextEntry
+          />
+          {showValidation && !password.trim() && (
+            <Text style={styles.errorText}>Password is required</Text>
           )}
         </View>
 
         {/* Plant Name */}
         <View style={styles.fieldContainer}>
-          <Text style={styles.fieldLabel}>Plant Name</Text>
+          <Text style={styles.fieldLabel}>Give Your Plant a Name</Text>
           <TextInput
             style={[
               styles.textInput,
               showValidation && !plantName.trim() && styles.inputError
             ]}
-            placeholder="Type here..."
+            placeholder="e.g., Sunny, Green Friend, Oscar..."
             placeholderTextColor="#999"
             value={plantName}
             onChangeText={(text) => {
               setPlantName(text);
-              if (showValidation && text.trim()) {
-                setShowValidation(false);
-              }
+              clearValidation('plantName', text);
             }}
           />
           {showValidation && !plantName.trim() && (
@@ -98,23 +202,33 @@ export default function PlantSetupScreen() {
           )}
         </View>
 
-        {/* Plant Age - Updated to use AgePicker */}
+        {/* Plant Photo */}
         <View style={styles.fieldContainer}>
-          <Text style={styles.fieldLabel}>Plant Age</Text>
-          <AgePicker 
-            selectedAge={plantAge}
-            onAgeSelect={handleAgeSelect}
-          />
+          <Text style={styles.fieldLabel}>Add a Photo of Your Plant</Text>
+          <TouchableOpacity 
+            style={styles.photoContainer}
+            onPress={showImageOptions}
+          >
+            {plantImage ? (
+              <Image source={{ uri: plantImage }} style={styles.plantImage} />
+            ) : (
+              <View style={styles.photoPlaceholder}>
+                <Text style={styles.photoIcon}>📷</Text>
+                <Text style={styles.photoText}>Tap to add photo</Text>
+                <Text style={styles.photoSubtext}>(Optional)</Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* Done Button */}
+      {/* Create Account Button */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
-          style={styles.doneButton}
-          onPress={handleDone}
+          style={styles.createButton}
+          onPress={handleCreateAccount}
         >
-          <Text style={styles.buttonText}>Done!</Text>
+          <Text style={styles.buttonText}>Create Account & Add Plant</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -129,8 +243,13 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 30,
+  },
+  backButton: {
+    fontSize: 16,
+    color: '#4CAF50',
+    fontWeight: '500',
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
@@ -149,14 +268,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   fieldContainer: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   fieldLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333333',
     marginBottom: 8,
-    textAlign: 'center',
   },
   textInput: {
     backgroundColor: '#FFFFFF',
@@ -175,14 +293,47 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     fontSize: 12,
     marginTop: 4,
-    textAlign: 'center',
+  },
+  photoContainer: {
+    alignItems: 'center',
+  },
+  photoPlaceholder: {
+    width: 120,
+    height: 120,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photoIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  photoText: {
+    fontSize: 14,
+    color: '#666666',
+    fontWeight: '500',
+  },
+  photoSubtext: {
+    fontSize: 12,
+    color: '#999999',
+    marginTop: 2,
+  },
+  plantImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    backgroundColor: '#f0f0f0',
   },
   buttonContainer: {
     paddingBottom: 40,
     paddingHorizontal: 20,
   },
-  doneButton: {
-    backgroundColor: '#A5D6A7',
+  createButton: {
+    backgroundColor: '#4CAF50',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -193,8 +344,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   buttonText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#333333',
+    color: '#FFFFFF',
   },
 });

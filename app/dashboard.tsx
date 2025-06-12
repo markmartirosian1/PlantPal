@@ -43,6 +43,10 @@ export default function DashboardScreen() {
     router.replace('/');
   };
 
+  const handleCalendar = () => {
+    router.push('/calendar');
+  };
+
   const nextTip = () => {
     setCurrentTipIndex((prev) => (prev + 1) % tips.length);
   };
@@ -55,8 +59,8 @@ export default function DashboardScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.menuIcon}>≡</Text>
+        <TouchableOpacity onPress={handleCalendar}>
+          <Text style={styles.calendarIcon}>📅</Text>
         </TouchableOpacity>
         <Text style={styles.temperature}>75° F</Text>
         <TouchableOpacity onPress={handleLogout}>
@@ -66,24 +70,9 @@ export default function DashboardScreen() {
 
       {/* Plant Display */}
       <View style={styles.plantContainer}>
-        <View style={styles.windowFrame}>
-          <View style={styles.windowGrid}>
-            <View style={styles.windowPane}></View>
-            <View style={styles.windowPane}></View>
-            <View style={styles.windowPane}></View>
-            <View style={styles.windowPane}></View>
-          </View>
-          
-          {/* Plant illustration */}
-          <View style={styles.plantWrapper}>
-            <View style={styles.pot}>
-              <View style={styles.plant}>
-                <View style={[styles.leaf, styles.leafLeft]}></View>
-                <View style={[styles.leaf, styles.leafRight]}></View>
-                <View style={[styles.leaf, styles.leafTop]}></View>
-              </View>
-            </View>
-          </View>
+        {/* Simple Plant Icon */}
+        <View style={styles.plantIconContainer}>
+          <Text style={styles.plantIcon}>🪴</Text>
         </View>
 
         {/* Plant Info */}
@@ -95,21 +84,21 @@ export default function DashboardScreen() {
 
       {/* Care Schedule */}
       <View style={styles.scheduleContainer}>
-        <View style={styles.scheduleItem}>
+        <TouchableOpacity style={styles.scheduleItem} onPress={handleCalendar}>
           <Text style={styles.scheduleIcon}>💧</Text>
           <View>
             <Text style={styles.scheduleTitle}>Next Watering</Text>
             <Text style={styles.scheduleTime}>{plantData.nextWatering}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.scheduleItem}>
+        <TouchableOpacity style={styles.scheduleItem} onPress={handleCalendar}>
           <Text style={styles.scheduleIcon}>🌱</Text>
           <View>
             <Text style={styles.scheduleTitle}>Next Soil Change</Text>
             <Text style={styles.scheduleTime}>{plantData.nextSoilChange}</Text>
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Tips Scroller */}
@@ -170,9 +159,9 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 20,
   },
-  menuIcon: {
+  calendarIcon: {
     fontSize: 24,
-    color: 'gray',
+    color: '#4CAF50',
   },
   temperature: {
     fontSize: 16,
@@ -187,75 +176,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
   },
-  windowFrame: {
-    width: 120,
-    height: 160,
-    backgroundColor: '#B3DEF6',
-    borderWidth: 4,
-    borderColor: '#8B4513',
-    borderRadius: 8,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-    marginBottom: 16,
-  },
-  windowGrid: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 2,
-  },
-  windowPane: {
-    width: '50%',
-    height: '50%',
-    backgroundColor: '#87CEFA',
-    margin: 0.5,
-    borderRadius: 2,
-  },
-  plantWrapper: {
+  plantIconContainer: {
+    marginBottom: 20,
     alignItems: 'center',
-    marginBottom: -10,
+    justifyContent: 'center',
   },
-  pot: {
-    width: 60,
-    height: 40,
-    backgroundColor: '#8B4513',
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
-    alignItems: 'center',
-  },
-  plant: {
-    width: 50,
-    height: 60,
-    backgroundColor: '#4CAF50',
-    borderRadius: 25,
-    marginTop: -40,
-    position: 'relative',
-  },
-  leaf: {
-    position: 'absolute',
-    width: 30,
-    height: 24,
-    backgroundColor: '#3E8948',
-    borderRadius: 25,
-  },
-  leafLeft: {
-    bottom: 15,
-    left: -12,
-    transform: [{ rotate: '-45deg' }],
-  },
-  leafRight: {
-    bottom: 20,
-    right: -12,
-    transform: [{ rotate: '45deg' }],
-  },
-  leafTop: {
-    top: -5,
-    left: 10,
-    transform: [{ rotate: '0deg' }],
+  plantIcon: {
+    fontSize: 80,
+    textAlign: 'center',
   },
   plantInfo: {
     alignItems: 'center',
