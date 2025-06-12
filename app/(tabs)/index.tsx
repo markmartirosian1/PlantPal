@@ -22,11 +22,11 @@ export default function HomeTab() {
 
       {/* Plant Illustration */}
       <View style={styles.plantContainer}>
-        <Text style={styles.plantIcon}>🪴</Text>
+        <Text style={styles.plantIcon}>🌿</Text>
       </View>
 
       {/* Subtitle */}
-      <Text style={styles.subtitle}>Help you plants grow and thrive!</Text>
+      <Text style={styles.subtitle}>Helping your plants grow and thrive!</Text>
 
       {/* Features Section */}
       <View style={styles.featuresContainer}>
