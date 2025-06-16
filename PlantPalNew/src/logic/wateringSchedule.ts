@@ -37,9 +37,10 @@ export const updateWateringSchedule = (
     wateringSchedule: {
       frequency,
       lastWatered: new Date().toISOString(),
+      timeOfDay: '8:00'
     },
   };
-};
+};    
 
 export const markAsWatered = (plant: SavedPlant): SavedPlant => {
   if (!plant.wateringSchedule) {

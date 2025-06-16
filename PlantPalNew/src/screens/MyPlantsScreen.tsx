@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Button, IconButton, Portal, Dialog } from 'react-native-paper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../App';
+import { RootStackParamList } from '../../App';
 import { getPlants, deletePlant, SavedPlant, updatePlant } from '../storage/plantStorage';
 import { calculateWateringStatus, markAsWatered } from '../logic/wateringSchedule';
+import * as Notifications from 'expo-notifications';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'MyPlants'>;
@@ -14,6 +16,9 @@ export default function MyPlantsScreen({ navigation }: Props) {
   const [plants, setPlants] = useState<SavedPlant[]>([]);
   const [selectedPlant, setSelectedPlant] = useState<SavedPlant | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDelayPicker, setShowDelayPicker] = useState(false);
+  const [delayPlant, setDelayPlant] = useState<SavedPlant | null>(null);
+  const [delayTime, setDelayTime] = useState(new Date());
 
   useEffect(() => {
     loadPlants();
@@ -42,10 +47,55 @@ export default function MyPlantsScreen({ navigation }: Props) {
       const updatedPlant = markAsWatered(plant);
       await updatePlant(updatedPlant);
       setPlants(plants.map((p) => (p.id === plant.id ? updatedPlant : p)));
+      await scheduleWateringNotification(updatedPlant);
     } catch (error) {
       console.error('Error updating plant:', error);
     }
   };
+
+  const handleDelayPlant = (plant: SavedPlant) => {
+    setDelayPlant(plant);
+    setShowDelayPicker(true);
+  };
+
+  const handleDelayConfirm = async () => {
+    if (delayPlant) {
+      const [hour, minute] = [delayTime.getHours(), delayTime.getMinutes()];
+      const updatedPlant = {
+        ...delayPlant,
+        wateringSchedule: {
+          ...delayPlant.wateringSchedule!,
+          timeOfDay: `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
+          lastWatered: delayPlant.wateringSchedule!.lastWatered,
+        },
+      };
+      await updatePlant(updatedPlant);
+      await scheduleWateringNotification(updatedPlant);
+      setPlants(plants.map((p) => (p.id === updatedPlant.id ? updatedPlant : p)));
+      setShowDelayPicker(false);
+      setDelayPlant(null);
+    }
+  };
+
+  async function scheduleWateringNotification(plant: SavedPlant) {
+    const [hour, minute] = plant.wateringSchedule!.timeOfDay.split(':').map(Number);
+    const lastWatered = new Date(plant.wateringSchedule!.lastWatered);
+    const nextWatering = new Date(lastWatered);
+    nextWatering.setDate(nextWatering.getDate() + plant.wateringSchedule!.frequency);
+    nextWatering.setHours(hour, minute, 0, 0);
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `Time to water ${plant.name}!`,
+        body: `Don't forget to water your ${plant.name} today.`,
+        data: { plantId: plant.id },
+      },
+      trigger: {
+        hour,
+        minute,
+        repeats: true,
+      },
+    });
+  }
 
   const renderPlantCard = ({ item: plant }: { item: SavedPlant }) => {
     const wateringStatus = calculateWateringStatus(plant);
@@ -91,6 +141,13 @@ export default function MyPlantsScreen({ navigation }: Props) {
               >
                 Mark as Watered
               </Button>
+              <Button
+                mode="outlined"
+                onPress={() => handleDelayPlant(plant)}
+                style={styles.waterButton}
+              >
+                Delay
+              </Button>
             </View>
           )}
         </Card.Content>
@@ -119,6 +176,22 @@ export default function MyPlantsScreen({ navigation }: Props) {
           </Dialog.Actions>
         </Dialog>
       </Portal>
+
+      {showDelayPicker && (
+        <DateTimePicker
+          value={delayTime}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={(_, selectedTime) => {
+            setShowDelayPicker(false);
+            if (selectedTime) {
+              setDelayTime(selectedTime);
+              handleDelayConfirm();
+            }
+          }}
+        />
+      )}
     </View>
   );
 }
