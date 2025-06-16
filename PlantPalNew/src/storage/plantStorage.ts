@@ -11,6 +11,7 @@ export interface SavedPlant {
   wateringSchedule?: {
     frequency: number; // days
     lastWatered: string;
+    timeOfDay: string; // e.g., "08:00"
   };
 }
 

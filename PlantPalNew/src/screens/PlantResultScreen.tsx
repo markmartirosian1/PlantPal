@@ -6,6 +6,9 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../App';
 import { savePlant } from '../storage/plantStorage';
 import { updateWateringSchedule } from '../logic/wateringSchedule';
+import * as Notifications from 'expo-notifications';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import type { SavedPlant } from '../storage/plantStorage';
 
 type Props = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'PlantResult'>;
@@ -17,6 +20,8 @@ export default function PlantResultScreen({ navigation, route }: Props) {
   const [wateringFrequency, setWateringFrequency] = useState('');
   const [showDialog, setShowDialog] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [wateringTime, setWateringTime] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   // Defensive check for missing or malformed data
   if (!plantData || !Array.isArray(plantData.suggestions) || plantData.suggestions.length === 0) {
@@ -33,28 +38,26 @@ export default function PlantResultScreen({ navigation, route }: Props) {
 
   const handleSavePlant = async () => {
     if (!plantData.suggestions[0]) return;
-
     try {
       setSaving(true);
+      const timeOfDay = wateringTime.toTimeString().slice(0,5); // "HH:MM"
       const plant = {
         id: Date.now().toString(),
         name: plantData.suggestions[0].plant_name,
         scientificName: plantData.suggestions[0].plant_details.scientific_name,
         family: plantData.suggestions[0].plant_details.structured_name?.genus || '',
-        imageUri: '', // You'll need to pass this from the previous screen
+        imageUri: '',
         dateIdentified: new Date().toISOString(),
+        wateringSchedule: wateringFrequency ? {
+          frequency: parseInt(wateringFrequency, 10),
+          lastWatered: new Date().toISOString(),
+          timeOfDay,
+        } : undefined,
       };
-
-      if (wateringFrequency) {
-        const frequency = parseInt(wateringFrequency, 10);
-        if (!isNaN(frequency)) {
-          const plantWithSchedule = updateWateringSchedule(plant, frequency);
-          await savePlant(plantWithSchedule);
-        }
-      } else {
-        await savePlant(plant);
+      await savePlant(plant);
+      if (plant.wateringSchedule) {
+        await scheduleWateringNotification(plant);
       }
-
       setShowDialog(true);
     } catch (error) {
       console.error('Error saving plant:', error);
@@ -62,6 +65,23 @@ export default function PlantResultScreen({ navigation, route }: Props) {
       setSaving(false);
     }
   };
+
+  async function scheduleWateringNotification(plant: SavedPlant) {
+    if (!plant.wateringSchedule) return;
+    const [hour, minute] = plant.wateringSchedule.timeOfDay.split(':').map(Number);
+    const lastWatered = new Date(plant.wateringSchedule.lastWatered);
+    const nextWatering = new Date(lastWatered);
+    nextWatering.setDate(nextWatering.getDate() + plant.wateringSchedule.frequency);
+    nextWatering.setHours(hour, minute, 0, 0);
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `Time to water ${plant.name}!`,
+        body: `Don't forget to water your ${plant.name} today.`,
+        data: { plantId: plant.id },
+      },
+      trigger: nextWatering,
+    });
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -97,6 +117,22 @@ export default function PlantResultScreen({ navigation, route }: Props) {
         </Card.Content>
       </Card>
 
+      <Button mode="outlined" onPress={() => setShowTimePicker(true)} style={{ marginBottom: 8 }}>
+        Select Watering Time ({wateringTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+      </Button>
+      {showTimePicker && (
+        <DateTimePicker
+          value={wateringTime}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={(_, selectedTime) => {
+            setShowTimePicker(false);
+            if (selectedTime) setWateringTime(selectedTime);
+          }}
+        />
+      )}
+
       <Button
         mode="contained"
         onPress={handleSavePlant}
@@ -108,13 +144,26 @@ export default function PlantResultScreen({ navigation, route }: Props) {
       </Button>
 
       <Portal>
-        <Dialog visible={showDialog} onDismiss={() => navigation.navigate('MyPlants')}>
+        <Dialog
+          visible={showDialog}
+          onDismiss={() => {
+            setShowDialog(false);
+            navigation.navigate('MyPlants');
+          }}
+        >
           <Dialog.Title>Success!</Dialog.Title>
           <Dialog.Content>
             <Text>Plant saved successfully!</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => navigation.navigate('MyPlants')}>View My Plants</Button>
+            <Button
+              onPress={() => {
+                setShowDialog(false);
+                navigation.navigate('MyPlants');
+              }}
+            >
+              View My Plants
+            </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
