@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "PlantPalNew",
+    "slug": "PlantPalNew",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.markplants.PlantPalNew",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSUserNotificationUsageDescription": "This app uses notifications to remind you to water your plants."
+      }
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "package": "com.markplants.PlantPalNew",
+      "versionCode": 1,
+      "permissions": ["NOTIFICATIONS"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4d99ca4d-c3e5-4698-a9b6-253e47d7aa17"
+      }
+    },
+    "plugins": [
+      "expo-notifications"
+    ]
+  }
+}
