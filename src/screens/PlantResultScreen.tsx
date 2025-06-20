@@ -68,19 +68,45 @@ export default function PlantResultScreen({ navigation, route }: Props) {
 
   async function scheduleWateringNotification(plant: SavedPlant) {
     if (!plant.wateringSchedule) return;
+    
+    console.log('Scheduling notification for plant:', plant.name);
+    
+    // Cancel any existing notifications for this plant
+    const existingNotifications = await Notifications.getAllScheduledNotificationsAsync();
+    const plantNotification = existingNotifications.find(
+      notification => notification.content.data?.plantId === plant.id
+    );
+    if (plantNotification) {
+      await Notifications.cancelScheduledNotificationAsync(plantNotification.identifier);
+      console.log('Cancelled existing notification for plant:', plant.name);
+    }
+
     const [hour, minute] = plant.wateringSchedule.timeOfDay.split(':').map(Number);
     const lastWatered = new Date(plant.wateringSchedule.lastWatered);
     const nextWatering = new Date(lastWatered);
     nextWatering.setDate(nextWatering.getDate() + plant.wateringSchedule.frequency);
     nextWatering.setHours(hour, minute, 0, 0);
-    await Notifications.scheduleNotificationAsync({
+
+    // If the next watering time has already passed, schedule for tomorrow
+    if (nextWatering <= new Date()) {
+      nextWatering.setDate(nextWatering.getDate() + 1);
+    }
+
+    console.log('Next watering time for', plant.name, ':', nextWatering.toLocaleString());
+
+    const notificationId = await Notifications.scheduleNotificationAsync({
       content: {
         title: `Time to water ${plant.name}!`,
         body: `Don't forget to water your ${plant.name} today.`,
         data: { plantId: plant.id },
       },
-      trigger: nextWatering,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: nextWatering,
+      },
     });
+
+    console.log('Scheduled notification with ID:', notificationId, 'for plant:', plant.name);
   }
 
   return (

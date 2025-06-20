@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Text, Card, Button, IconButton, Portal, Dialog } from 'react-native-paper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
+import { RootStackParamList } from '../../App'; 
 import { getPlants, deletePlant, SavedPlant, updatePlant } from '../storage/plantStorage';
 import { calculateWateringStatus, markAsWatered } from '../logic/wateringSchedule';
 import * as Notifications from 'expo-notifications';
@@ -23,6 +23,21 @@ export default function MyPlantsScreen({ navigation }: Props) {
   useEffect(() => {
     loadPlants();
   }, []);
+
+  useEffect(() => {
+    // Reschedule notifications for all plants when the screen loads
+    const rescheduleNotifications = async () => {
+      for (const plant of plants) {
+        if (plant.wateringSchedule) {
+          await scheduleWateringNotification(plant);
+        }
+      }
+    };
+    
+    if (plants.length > 0) {
+      rescheduleNotifications();
+    }
+  }, [plants]);
 
   const loadPlants = async () => {
     const savedPlants = await getPlants();
@@ -78,23 +93,46 @@ export default function MyPlantsScreen({ navigation }: Props) {
   };
 
   async function scheduleWateringNotification(plant: SavedPlant) {
-    const [hour, minute] = plant.wateringSchedule!.timeOfDay.split(':').map(Number);
-    const lastWatered = new Date(plant.wateringSchedule!.lastWatered);
+    if (!plant.wateringSchedule) return;
+    
+    console.log('Scheduling notification for plant:', plant.name);
+    
+    // Cancel any existing notifications for this plant
+    const existingNotifications = await Notifications.getAllScheduledNotificationsAsync();
+    const plantNotification = existingNotifications.find(
+      notification => notification.content.data?.plantId === plant.id
+    );
+    if (plantNotification) {
+      await Notifications.cancelScheduledNotificationAsync(plantNotification.identifier);
+      console.log('Cancelled existing notification for plant:', plant.name);
+    }
+
+    const [hour, minute] = plant.wateringSchedule.timeOfDay.split(':').map(Number);
+    const lastWatered = new Date(plant.wateringSchedule.lastWatered);
     const nextWatering = new Date(lastWatered);
-    nextWatering.setDate(nextWatering.getDate() + plant.wateringSchedule!.frequency);
+    nextWatering.setDate(nextWatering.getDate() + plant.wateringSchedule.frequency);
     nextWatering.setHours(hour, minute, 0, 0);
-    await Notifications.scheduleNotificationAsync({
+
+    // If the next watering time has already passed, schedule for tomorrow
+    if (nextWatering <= new Date()) {
+      nextWatering.setDate(nextWatering.getDate() + 1);
+    }
+
+    console.log('Next watering time for', plant.name, ':', nextWatering.toLocaleString());
+
+    const notificationId = await Notifications.scheduleNotificationAsync({
       content: {
         title: `Time to water ${plant.name}!`,
         body: `Don't forget to water your ${plant.name} today.`,
         data: { plantId: plant.id },
       },
       trigger: {
-        hour,
-        minute,
-        repeats: true,
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: nextWatering,
       },
     });
+
+    console.log('Scheduled notification with ID:', notificationId, 'for plant:', plant.name);
   }
 
   const renderPlantCard = ({ item: plant }: { item: SavedPlant }) => {
