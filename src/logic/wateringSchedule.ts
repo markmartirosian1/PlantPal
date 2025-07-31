@@ -37,7 +37,7 @@ export const updateWateringSchedule = (
     wateringSchedule: {
       frequency,
       lastWatered: new Date().toISOString(),
-      timeOfDay: '8:00'
+      timeOfDay: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     },
   };
 };    

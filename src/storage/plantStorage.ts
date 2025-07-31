@@ -1,6 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PlantSuggestion } from '../services/plantIdApi';
 
+export interface WateringEvent {
+  timestamp: string; // ISO string of when the plant was actually watered
+  timeOfDay: string; // The time of day when it was watered (e.g., "14:30")
+}
+
 export interface SavedPlant {
   id: string;
   name: string;
@@ -12,6 +17,8 @@ export interface SavedPlant {
     frequency: number; // days
     lastWatered: string;
     timeOfDay: string; // e.g., "08:00"
+    originalTimeOfDay?: string; // e.g., "08:00" - stored when delay is applied
+    wateringHistory?: WateringEvent[]; // Array of actual watering events
   };
 }
 
@@ -66,5 +73,51 @@ export const deletePlant = async (plantId: string): Promise<void> => {
   } catch (error) {
     console.error('Error deleting plant:', error);
     throw error;
+  }
+};
+
+export const addWateringEvent = async (plantId: string, wateringTime: Date): Promise<void> => {
+  try {
+    const plants = await getPlants();
+    const plantIndex = plants.findIndex(p => p.id === plantId);
+    
+    if (plantIndex === -1) {
+      throw new Error('Plant not found');
+    }
+
+    const plant = plants[plantIndex];
+    const wateringEvent: WateringEvent = {
+      timestamp: wateringTime.toISOString(),
+      timeOfDay: wateringTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    const updatedPlant = {
+      ...plant,
+      wateringSchedule: {
+        ...plant.wateringSchedule!,
+        lastWatered: wateringTime.toISOString(),
+        wateringHistory: [
+          ...(plant.wateringSchedule?.wateringHistory || []),
+          wateringEvent
+        ]
+      }
+    };
+
+    plants[plantIndex] = updatedPlant;
+    await AsyncStorage.setItem(PLANTS_STORAGE_KEY, JSON.stringify(plants));
+  } catch (error) {
+    console.error('Error adding watering event:', error);
+    throw error;
+  }
+};
+
+export const getWateringHistory = async (plantId: string): Promise<WateringEvent[]> => {
+  try {
+    const plants = await getPlants();
+    const plant = plants.find(p => p.id === plantId);
+    return plant?.wateringSchedule?.wateringHistory || [];
+  } catch (error) {
+    console.error('Error getting watering history:', error);
+    return [];
   }
 }; 

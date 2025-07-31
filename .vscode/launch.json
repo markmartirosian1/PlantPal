@@ -1,0 +1,51 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Android Hermes",
+      "request": "launch",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}",
+      "platform": "android",
+      "sourceMaps": true,
+      "enableDebug": true,
+    },
+    {
+      "name": "Attach to Hermes application",
+      "request": "attach",
+      "type": "reactnativedirect",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug Expo App (Android)",
+      "type": "reactnative",
+      "request": "launch",
+      "platform": "android",
+      "sourceMaps": true,
+      "enableDebug": true,
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/node_modules/expo/AppEntry.js"
+    },
+    {
+      "name": "Attach to Expo (Android)",
+      "type": "reactnative",
+      "request": "attach",
+      "sourceMaps": true,
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Start Expo Development Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/expo/bin/cli.js",
+      "args": [
+        "start"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "env": {
+        "EXPO_DEBUG": "1"
+      }
+    }
+  ]
+}

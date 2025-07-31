@@ -11,6 +11,7 @@
       "bundleIdentifier": "com.markplants.PlantPalNew",
       "buildNumber": "1.0.0",
       "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to identify plants.",
         "NSUserNotificationUsageDescription": "This app uses notifications to remind you to water your plants."
       }
     },
@@ -18,7 +19,10 @@
       "edgeToEdgeEnabled": true,
       "package": "com.markplants.PlantPalNew",
       "versionCode": 1,
-      "permissions": ["NOTIFICATIONS"]
+      "permissions": [
+        "NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

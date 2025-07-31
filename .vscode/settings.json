@@ -1,0 +1,25 @@
+{
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "react-native-tools.projectRoot": "./",
+  "react-native-tools.expoProjectRoot": "./",
+  "react-native-tools.expoXDLPath": "./node_modules/expo/bin/cli.js",
+  "react-native-tools.showUserTips": false,
+  "react-native-tools.enableTelemetry": false,
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    "**/dist": true,
+    "**/.vscode/.react": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    "**/dist": true,
+    "**/.vscode/.react": true
+  },
+  "debug.console.fontSize": 12,
+  "debug.console.lineHeight": 18,
+  "debug.internalConsoleOptions": "openOnSessionStart"
+} 
