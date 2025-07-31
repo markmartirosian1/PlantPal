@@ -1,50 +1,19 @@
-# Welcome to your Expo app 👋
+# 🌿 PlantPal
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**PlantPal** is a mobile app designed to help plant owners keep their green friends healthy and thriving. With intelligent reminders, plant identification, and an intuitive interface, PlantPal ensures you never forget to water your plants again.
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+- 📷 **Plant Identification**  
+  Upload a photo of your plant and let PlantPal tell you what type it is using the Plant.id API. 
 
-   ```bash
-   npm install
-   ```
+- 🔔 **Smart Notifications**  
+  Get timely reminders when it's time to water your plants. You can accept or delay these reminders for as long as you need — they'll stick around until completed.
 
-2. Start the app
+- 🪴 **My Plants Dashboard**  
+  See all your plants in one place, complete with watering schedules and last watered time.
 
-   ```bash
-   npx expo start
-   ```
+- 📆 **Watering Calendar**  
+  View your complete watering history and future schedule in an easy-to-navigate calendar.
 
-In the output, you'll find options to open the app in a
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
